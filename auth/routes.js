@@ -21,7 +21,6 @@ function AuthRoutes(app) {
       const queryURL = `${ACCOUNT_URL}/api/token`;
       const params = req.body;
       const response = await axios.post(queryURL, params, headers);
-
       const { access_token, expires_in, refresh_token } = response.data;
       saveTokens(req, access_token, expires_in, refresh_token);
 
@@ -37,12 +36,16 @@ function AuthRoutes(app) {
     try {
       const queryURL = `${ACCOUNT_URL}/api/token`;
       const params = {
-        client_id: process.env.SPOTIFY_CLIENT_ID,
+        client_id: SPOTIFY_CLIENT_ID,
         grant_type: "refresh_token",
         refresh_token: req.session["refresh_token"],
       };
+
       const response = await axios.post(queryURL, params, headers);
-      // console.log("Refresh token response:", response.data);
+      const { access_token, expires_in, refresh_token } = response.data;
+      saveTokens(req, access_token, expires_in, refresh_token);
+
+      console.log("Refresh token response:", response.data);
       res.status(200).json("Refreshed successfully");
     } catch (err) {
       console.log(err);
