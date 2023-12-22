@@ -14,6 +14,7 @@ function AuthRoutes(app) {
     req.session["access_token"] = access_token;
     req.session["refresh_token"] = refresh_token;
     req.session["expiration_time"] = Date.now() + expires_in * 1000;
+    req.session["account_id"] = "123"
   };
 
   app.post("/api/auth/token", async (req, res) => {
