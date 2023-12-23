@@ -7,7 +7,6 @@ function UserRoutes(app) {
   app.get("/api/user", async (req, res) => {
     try {
       const accountId = req.session["account_id"];
-      console.log("Account id in /api/user:", accountId);
       res.json(accountId);
     } catch (err) {
       console.log(err);
@@ -24,12 +23,8 @@ function UserRoutes(app) {
         },
       };
       const response = await axios.get(queryURL, params);
-      console.log("User data:", response.data);
       const { id } = response.data;
-      console.log("Account id stored:", id)
       req.session["account_id"] = id;
-      // res.json(response.data.id);
-      // res.json(response.data);
       res.status(200).json("Account saved successfully");
     } catch (err) {
       console.log(err);
@@ -52,7 +47,6 @@ function UserRoutes(app) {
       };
       const response = await axios.get(queryURL, params);
       console.log(`Top ${type} for ${time_range}`);
-      // console.log(`Top ${type} for ${time_range}:`, response.data);
       res.json(response.data);
     } catch (err) {
       console.log(err);
