@@ -6,13 +6,8 @@ const SPOTIFY_V1_ENDPOINT = "https://api.spotify.com/v1";
 function UserRoutes(app) {
   app.get("/api/user", async (req, res) => {
     try {
-      console.log("Session access token:", req.session["access_token"]);
-      console.log(
-        "Session refresh token in /api/user:",
-        req.session["refresh_token"]
-      );
       const accountId = req.session["account_id"];
-      console.log("Account id in /api/user:", accountId);
+      // console.log("Account id in /api/user:", accountId);
       res.json(accountId);
     } catch (err) {
       console.log(err);
@@ -51,7 +46,8 @@ function UserRoutes(app) {
         },
       };
       const response = await axios.get(queryURL, params);
-      console.log(`Top ${type} for ${time_range}:`, response.data);
+      console.log(`Top ${type} for ${time_range}`);
+      // console.log(`Top ${type} for ${time_range}:`, response.data);
       res.json(response.data);
     } catch (err) {
       console.log(err);

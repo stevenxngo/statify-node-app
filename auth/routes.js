@@ -46,7 +46,7 @@ function AuthRoutes(app) {
       const { access_token, expires_in, refresh_token } = response.data;
       saveTokens(req, access_token, expires_in, refresh_token);
 
-      console.log("Refresh token response:", response.data);
+      // console.log("Refresh token response:", response.data);
       res.status(200).json("Refreshed successfully");
     } catch (err) {
       console.log(err);
@@ -60,7 +60,6 @@ function AuthRoutes(app) {
       req.session["refresh_token"] = null;
       req.session["expiration_time"] = null;
       req.session.destroy();
-      console.log("Logged out successfully");
       res.status(200).json("Logged out successfully");
     } catch (err) {
       console.log(err);
