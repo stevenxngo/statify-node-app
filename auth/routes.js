@@ -14,7 +14,6 @@ function AuthRoutes(app) {
     req.session["access_token"] = access_token;
     req.session["refresh_token"] = refresh_token;
     req.session["expiration_time"] = Date.now() + expires_in * 1000;
-    req.session["account_id"] = "123"
   };
 
   app.post("/api/auth/token", async (req, res) => {
@@ -59,6 +58,7 @@ function AuthRoutes(app) {
       req.session["access_token"] = null;
       req.session["refresh_token"] = null;
       req.session["expiration_time"] = null;
+      req.session["account_id"] = null;
       req.session.destroy();
       res.status(200).json("Logged out successfully");
     } catch (err) {
