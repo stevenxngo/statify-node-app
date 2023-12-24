@@ -3,6 +3,11 @@ import { saveTokens } from "../auth/routes.js";
 
 const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const ACCOUNT_URL = "https://accounts.spotify.com";
+const headers = {
+  headers: {
+    "Content-Type": "application/x-www-form-urlencoded",
+  },
+};
 const RETRY_DELAY_SECONDS = 5;
 const MAX_RETRIES = 3;
 
@@ -33,12 +38,12 @@ const handleRateLimitError = async (req, error, url, params, retryCount) => {
   const retryAfter =
     parseInt(error.response.headers["retry-after"]) || RETRY_DELAY_SECONDS;
   await handleRateLimit(retryAfter);
-  return spotifyGet(req, url, params, retryCount + 1);
+  return spotifyGet(req, error, url, params, retryCount + 1);
 };
 
-const handleAuthenticationError = async (req, url, params, retryCount) => {
+const handleAuthenticationError = async (req, error, url, params, retryCount) => {
   await refreshToken(req);
-  return spotifyGet(req, url, params, retryCount + 1);
+  return spotifyGet(req, error, url, params, retryCount + 1);
 };
 
 const handleGetError = async (req, error, url, params, retryCount = 0) => {
@@ -51,7 +56,7 @@ const handleGetError = async (req, error, url, params, retryCount = 0) => {
     // Token error
     else if (error.response && error.response.status === 401) {
       console.log("Authentication error: ", error.response);
-      return handleAuthenticationError(req, url, params, retryCount);
+      return handleAuthenticationError(req, error, url, params, retryCount);
     }
     // Other error
     else {
