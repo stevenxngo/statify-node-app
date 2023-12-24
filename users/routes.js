@@ -15,7 +15,7 @@ function UserRoutes(app) {
     }
   });
 
-  app.get("/api/user/me", async (req, res) => {
+  app.post("/api/user/me", async (req, res) => {
     try {
       const queryURL = `${SPOTIFY_V1_ENDPOINT}/me`;
       const params = {
@@ -35,8 +35,8 @@ function UserRoutes(app) {
   });
 
   app.get("/api/user/top/:type/:time_range", async (req, res) => {
+    const { type, time_range } = req.params;
     try {
-      const { type, time_range } = req.params;
       const queryURL = `${SPOTIFY_V1_ENDPOINT}/me/top/${type}`;
       const params = {
         params: {
@@ -53,6 +53,7 @@ function UserRoutes(app) {
       res.json(response.data);
     } catch (err) {
       console.log(err);
+      const { type, time_range } = req.params;
       res.status(500).json(`Error getting top ${type} for ${time_range}`);
     }
   });
