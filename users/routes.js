@@ -1,4 +1,5 @@
 import axios from "axios";
+import { spotifyGet } from "../common/spotifyApiUtils.js";
 import "dotenv/config";
 
 const SPOTIFY_V1_ENDPOINT = "https://api.spotify.com/v1";
@@ -22,7 +23,8 @@ function UserRoutes(app) {
           Authorization: `Bearer ${req.session["access_token"]}`,
         },
       };
-      const response = await axios.get(queryURL, params);
+      // const response = await axios.get(queryURL, params);
+      const response = await spotifyGet(req, queryURL, params);
       const { id } = response.data;
       req.session["account_id"] = id;
       res.status(200).json("Account saved successfully");
@@ -45,7 +47,8 @@ function UserRoutes(app) {
           Authorization: `Bearer ${req.session["access_token"]}`,
         },
       };
-      const response = await axios.get(queryURL, params);
+      // const response = await axios.get(queryURL, params);
+      const response = await spotifyGet(req, queryURL, params);
       console.log(`Top ${type} for ${time_range}`);
       res.json(response.data);
     } catch (err) {

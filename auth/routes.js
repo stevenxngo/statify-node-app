@@ -9,13 +9,13 @@ const headers = {
   },
 };
 
-function AuthRoutes(app) {
-  const saveTokens = (req, access_token, expires_in, refresh_token) => {
-    req.session["access_token"] = access_token;
-    req.session["refresh_token"] = refresh_token;
-    req.session["expiration_time"] = Date.now() + expires_in * 1000;
-  };
+export const saveTokens = (req, access_token, expires_in, refresh_token) => {
+  req.session["access_token"] = access_token;
+  req.session["refresh_token"] = refresh_token;
+  req.session["expiration_time"] = Date.now() + expires_in * 1000;
+};
 
+function AuthRoutes(app) {
   app.post("/api/auth/token", async (req, res) => {
     try {
       const queryURL = `${ACCOUNT_URL}/api/token`;
