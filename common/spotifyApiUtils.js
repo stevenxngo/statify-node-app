@@ -47,20 +47,21 @@ const handleAuthenticationError = async (req, error, url, params, retryCount) =>
 };
 
 const handleGetError = async (req, error, url, params, retryCount = 0) => {
+  console.log("Retry count: ", retryCount);
   if (retryCount < MAX_RETRIES) {
     // Rate limit error
     if (error.response && error.response.status === 429) {
-      console.log("Rate limited: ", error.response);
+      console.log("429 ERROR Rate limited: ", error.response);
       return handleRateLimitError(req, error, url, params, retryCount);
     } 
     // Token error
     else if (error.response && error.response.status === 401) {
-      console.log("Authentication error: ", error.response);
+      console.log("401 ERROR Authentication error: ", error.response);
       return handleAuthenticationError(req, error, url, params, retryCount);
     }
     // Other error
     else {
-      console.error("Other error:", error);
+      console.error("OTHER ERROR:", error);
       throw error;
     }
   } else {
@@ -73,7 +74,7 @@ export const spotifyGet = async (req, url, params) => {
     const response = await axios.get(url, params);
     return response;
   } catch (error) {
-    console.log("GET error:", error);
+    console.log("GET ERROR:", error);
     await handleGetError(req, error, url, params);
   }
 };
