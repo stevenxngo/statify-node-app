@@ -38,43 +38,64 @@ const handleRateLimitError = async (req, error, url, params, retryCount) => {
   const retryAfter =
     parseInt(error.response.headers["retry-after"]) || RETRY_DELAY_SECONDS;
   await handleRateLimit(retryAfter);
-  return spotifyGet(req, error, url, params, retryCount + 1);
+  return spotifyGet(req, url, params, retryCount + 1);
 };
 
-const handleAuthenticationError = async (req, error, url, params, retryCount) => {
+const handleAuthenticationError = async (req, url, params, retryCount) => {
   await refreshToken(req);
-  return spotifyGet(req, error, url, params, retryCount + 1);
+  params.headers.Authorization = `Bearer ${req.session["access_token"]}`;
+  return spotifyGet(req, url, params, retryCount + 1);
 };
 
 const handleGetError = async (req, error, url, params, retryCount = 0) => {
-  console.log("Retry count: ", retryCount);
+  console.log("\nRetry count: ", retryCount);
   if (retryCount < MAX_RETRIES) {
     // Rate limit error
     if (error.response && error.response.status === 429) {
-      console.log("429 ERROR Rate limited: ", error.response);
+      console.log("\n429 ERROR Rate limited: ");
+      console.log("Code:", error.code);
+      console.log("Message:", error.message);
       return handleRateLimitError(req, error, url, params, retryCount);
-    } 
+    }
     // Token error
     else if (error.response && error.response.status === 401) {
-      console.log("401 ERROR Authentication error: ", error.response);
-      return handleAuthenticationError(req, error, url, params, retryCount);
+      console.log("\n401 ERROR Authentication error: ");
+      console.log("Code:", error.code);
+      console.log("Message:", error.message);
+      return handleAuthenticationError(req, url, params, retryCount);
     }
     // Other error
     else {
-      console.error("OTHER ERROR:", error);
-      throw error;
+      console.error("\nOTHER ERROR: ");
+      console.log("Code:", error.code);
+      console.log("Message:", error.message);
+      return;
+      // throw error;
     }
   } else {
-    throw new Error("Max retries exceeded");
+    console.log("Max retries exceeded");
+    return;
+    // throw new Error("Max retries exceeded");
   }
 };
 
-export const spotifyGet = async (req, url, params) => {
+export const spotifyGet = async (req, url, params, retryCount = 0) => {
   try {
     const response = await axios.get(url, params);
     return response;
   } catch (error) {
-    console.log("GET ERROR:", error);
-    await handleGetError(req, error, url, params);
+    console.log("\nGET ERROR:");
+    console.log("Code:", error.code);
+    console.log("Message:", error.message);
+    return await handleGetError(req, error, url, params, retryCount);
+  }
+};
+
+export const checkExpiration = async (req) => {
+  const expirationTime = req.session["expiration_time"];
+  const currentTime = Date.now();
+  const expired = currentTime >= expirationTime;
+  if (expired) {
+    await refreshToken(req);
   }
 };

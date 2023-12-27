@@ -1,5 +1,5 @@
 import axios from "axios";
-import { spotifyGet } from "../common/spotifyApiUtils.js";
+import { spotifyGet, checkExpiration } from "../common/spotifyApiUtils.js";
 import "dotenv/config";
 
 const SPOTIFY_V1_ENDPOINT = "https://api.spotify.com/v1";
@@ -17,6 +17,7 @@ function UserRoutes(app) {
 
   app.post("/api/user/me", async (req, res) => {
     try {
+      await checkExpiration(req);
       const queryURL = `${SPOTIFY_V1_ENDPOINT}/me`;
       const params = {
         headers: {
@@ -37,6 +38,7 @@ function UserRoutes(app) {
   app.get("/api/user/top/:type/:time_range", async (req, res) => {
     const { type, time_range } = req.params;
     try {
+      await checkExpiration(req);
       const queryURL = `${SPOTIFY_V1_ENDPOINT}/me/top/${type}`;
       const params = {
         params: {

@@ -23,6 +23,7 @@ function AuthRoutes(app) {
       const response = await axios.post(queryURL, params, headers);
       const { access_token, expires_in, refresh_token } = response.data;
       saveTokens(req, access_token, expires_in, refresh_token);
+      console.log("Logged in successfully");
       res.status(200).json("Logged in successfully");
     } catch (err) {
       console.log(err);
@@ -43,6 +44,7 @@ function AuthRoutes(app) {
       const { access_token, expires_in, refresh_token } = response.data;
       saveTokens(req, access_token, expires_in, refresh_token);
 
+      console.log("Refreshed successfully");
       res.status(200).json("Refreshed successfully");
     } catch (err) {
       console.log(err);
