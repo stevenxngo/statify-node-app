@@ -35,6 +35,32 @@ function UserRoutes(app) {
     }
   });
 
+  const filterArtists = (artists) => {
+    return artists.map((artist) => ({
+      id: artist.id,
+      name: artist.name,
+      images: artist.images,
+      genres: artist.genres,
+      popularity: artist.popularity,
+    }));
+  };
+
+  const filterItems = (items, type) => {
+    if (type === "artists") {
+      return filterArtists(items);
+    } else if (type === "tracks") {
+      return items.map((track) => ({
+        id: track.id,
+        name: track.name,
+        images: track.album.images,
+        artists: filterArtists(track.artists),
+        popularity: track.popularity,
+      }));
+    } else {
+      throw error("Invalid type: ", type);
+    }
+  };
+
   app.get("/api/user/top/:type/:time_range", async (req, res) => {
     const { type, time_range } = req.params;
     try {
@@ -51,7 +77,8 @@ function UserRoutes(app) {
       };
       // const response = await axios.get(queryURL, params);
       const response = await spotifyGet(req, queryURL, params);
-      console.log(`Top ${type} for ${time_range}`);
+      const filteredItems = filterItems(response.data.items, type);
+      response.data.items = filteredItems;
       res.json(response.data);
     } catch (err) {
       console.log(err);
