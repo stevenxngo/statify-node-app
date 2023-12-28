@@ -36,12 +36,12 @@ function UserRoutes(app) {
   });
 
   const filterArtists = (artists) => {
-    return artists.map((artist) => ({
+    return artists.map((artist, index) => ({
+      rank: index,
       id: artist.id,
       name: artist.name,
       images: artist.images,
       genres: artist.genres,
-      popularity: artist.popularity,
     }));
   };
 
@@ -49,12 +49,12 @@ function UserRoutes(app) {
     if (type === "artists") {
       return filterArtists(items);
     } else if (type === "tracks") {
-      return items.map((track) => ({
+      return items.map((track, index) => ({
+        rank: index,
         id: track.id,
         name: track.name,
         images: track.album.images,
         artists: filterArtists(track.artists),
-        popularity: track.popularity,
       }));
     } else {
       throw error("Invalid type: ", type);
