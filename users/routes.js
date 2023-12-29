@@ -1,6 +1,6 @@
-import axios from "axios";
-import { spotifyGet, checkExpiration } from "../common/spotifyApiUtils.js";
 import "dotenv/config";
+import * as dao from "./userDao.js";
+import { spotifyGet, checkExpiration } from "../common/spotifyApiUtils.js";
 
 const SPOTIFY_V1_ENDPOINT = "https://api.spotify.com/v1";
 
@@ -24,10 +24,10 @@ function UserRoutes(app) {
           Authorization: `Bearer ${req.session["access_token"]}`,
         },
       };
-      // const response = await axios.get(queryURL, params);
       const response = await spotifyGet(req, queryURL, params);
       const { id } = response.data;
       req.session["account_id"] = id;
+      await dao.createUser(id);
       res.status(200).json("Account saved successfully");
     } catch (err) {
       console.log(err);
@@ -75,7 +75,6 @@ function UserRoutes(app) {
           Authorization: `Bearer ${req.session["access_token"]}`,
         },
       };
-      // const response = await axios.get(queryURL, params);
       const response = await spotifyGet(req, queryURL, params);
       const filteredItems = filterItems(response.data.items, type);
       response.data.items = filteredItems;
