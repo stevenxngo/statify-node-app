@@ -2,10 +2,16 @@ import mongoose from "mongoose";
 
 const artistSchema = new mongoose.Schema(
   {
-    _id: { type: String, required: true, unique: true },
     last_updated: Date,
-    name: String,
-    images: [{ url: String}],
+    _id: { type: String, required: true, unique: true },
+    name: { type: String, required: true, unique: true },
+    popularity: Number,
+    images: {
+      type: [{ url: String }],
+      default: [
+        "https://raw.githubusercontent.com/stevenxngo/statify-node-app/main/images/default_artist.jpeg",
+      ],
+    },
     genres: [String],
   },
   { collection: "artists" }

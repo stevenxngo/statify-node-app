@@ -38,10 +38,22 @@ function UserRoutes(app) {
   const filterArtists = (artists) => {
     return artists.map((artist, index) => ({
       rank: index,
-      id: artist.id,
+      _id: artist.id,
       name: artist.name,
+      popularity: artist.popularity,
       images: artist.images,
       genres: artist.genres,
+    }));
+  };
+
+  const filterTracks = (tracks) => {
+    return tracks.map((track, index) => ({
+      rank: index,
+      _id: track.id,
+      name: track.name,
+      popularity: track.popularity,
+      images: track.album.images,
+      artists: filterArtists(track.artists),
     }));
   };
 
@@ -49,36 +61,55 @@ function UserRoutes(app) {
     if (type === "artists") {
       return filterArtists(items);
     } else if (type === "tracks") {
-      return items.map((track, index) => ({
-        rank: index,
-        id: track.id,
-        name: track.name,
-        images: track.album.images,
-        artists: filterArtists(track.artists),
-      }));
+      return filterTracks(items);
     } else {
       throw error("Invalid type: ", type);
     }
   };
 
+  const getIds = (items) => {
+    return items.map((item, index) => ({ rank: index, item: item._id }));
+  };
+
   app.get("/api/user/top/:type/:time_range", async (req, res) => {
     const { type, time_range } = req.params;
     try {
-      await checkExpiration(req);
-      const queryURL = `${SPOTIFY_V1_ENDPOINT}/me/top/${type}`;
-      const params = {
-        params: {
-          time_range: time_range,
-          limit: 50,
-        },
-        headers: {
-          Authorization: `Bearer ${req.session["access_token"]}`,
-        },
-      };
-      const response = await spotifyGet(req, queryURL, params);
-      const filteredItems = filterItems(response.data.items, type);
-      response.data.items = filteredItems;
-      res.json(response.data);
+      // check database for data
+      const dbData = await dao.getUserData(
+        req.session["account_id"],
+        type,
+        time_range
+      );
+
+      if (dbData && dbData.length > 0) {
+        console.log(`Found data in database for ${type} ${time_range}`);
+        res.json(dbData);
+        return;
+      } else {
+        // get data from spotify api
+        await checkExpiration(req);
+        const queryURL = `${SPOTIFY_V1_ENDPOINT}/me/top/${type}`;
+        const params = {
+          params: {
+            time_range: time_range,
+            limit: 50,
+          },
+          headers: {
+            Authorization: `Bearer ${req.session["access_token"]}`,
+          },
+        };
+        const response = await spotifyGet(req, queryURL, params);
+        const filteredItems = filterItems(response.data.items, type);
+        const ids = getIds(filteredItems);
+        await dao.updateUserData(
+          req.session["account_id"],
+          type,
+          time_range,
+          ids,
+          filteredItems
+        );
+        res.json(filteredItems);
+      }
     } catch (err) {
       console.log(err);
       const { type, time_range } = req.params;

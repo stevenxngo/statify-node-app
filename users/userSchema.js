@@ -6,30 +6,62 @@ const userSchema = new mongoose.Schema(
     tracks: {
       short_term: {
         last_updated: Date,
-        items: [{ type: mongoose.Schema.Types.ObjectId, ref: "Track" }],
+        items: [
+          {
+            rank: Number,
+            track: { type: mongoose.Schema.Types.ObjectId, ref: "Track" },
+          },
+        ],
       },
       medium_term: {
         last_updated: Date,
-        items: [{ type: mongoose.Schema.Types.ObjectId, ref: "Track" }],
+        items: [
+          {
+            rank: Number,
+            track: { type: mongoose.Schema.Types.ObjectId, ref: "Track" },
+          },
+        ],
       },
       long_term: {
         last_updated: Date,
-        items: [{ type: mongoose.Schema.Types.ObjectId, ref: "Track" }],
+        items: [
+          {
+            rank: Number,
+            track: { type: mongoose.Schema.Types.ObjectId, ref: "Track" },
+          },
+        ],
       },
+      default: { short_term: {}, medium_term: {}, long_term: {} },
     },
     artists: {
       short_term: {
         last_updated: Date,
-        items: [{ type: mongoose.Schema.Types.ObjectId, ref: "Artist" }],
+        items: [
+          {
+            rank: Number,
+            track: { type: mongoose.Schema.Types.ObjectId, ref: "Artist" },
+          },
+        ],
       },
       medium_term: {
         last_updated: Date,
-        items: [{ type: mongoose.Schema.Types.ObjectId, ref: "Artist" }],
+        items: [
+          {
+            rank: Number,
+            track: { type: mongoose.Schema.Types.ObjectId, ref: "Artist" },
+          },
+        ],
       },
       long_term: {
         last_updated: Date,
-        items: [{ type: mongoose.Schema.Types.ObjectId, ref: "Artist" }],
+        items: [
+          {
+            rank: Number,
+            track: { type: mongoose.Schema.Types.ObjectId, ref: "Artist" },
+          },
+        ],
       },
+      default: { short_term: {}, medium_term: {}, long_term: {} },
     },
   },
   { collection: "users" }

@@ -2,11 +2,21 @@ import mongoose from "mongoose";
 
 const trackSchema = new mongoose.Schema(
   {
-    _id: { type: String, required: true, unique: true },
     last_updated: Date,
-    name: String,
-    images: [{ url: String}],
-    artists: [{ type: mongoose.Schema.Types.ObjectId, ref: "Artist" }],
+    _id: { type: String, required: true, unique: true },
+    name: { type: String, required: true, unique: true },
+    images: {
+      type: [{ url: String }],
+      default: [
+        "https://raw.githubusercontent.com/stevenxngo/statify-node-app/main/images/default_track.png",
+      ],
+    },
+    artists: [
+      {
+        name: String,
+        artistId: { type: mongoose.Schema.Types.ObjectId, ref: "Artist" },
+      },
+    ],
   },
   { collection: "tracks" }
 );
