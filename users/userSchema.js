@@ -2,14 +2,17 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    _id: { type: String, required: true, unique: true },
+    id: { type: String, required: true, unique: true },
     tracks: {
       short_term: {
         last_updated: Date,
         items: [
           {
             rank: Number,
-            track: { type: mongoose.Schema.Types.ObjectId, ref: "Track" },
+            track: {
+              type: String,
+              ref: "Track",
+            },
           },
         ],
       },
@@ -18,7 +21,10 @@ const userSchema = new mongoose.Schema(
         items: [
           {
             rank: Number,
-            track: { type: mongoose.Schema.Types.ObjectId, ref: "Track" },
+            track: {
+              type: String,
+              ref: "Track",
+            },
           },
         ],
       },
@@ -27,7 +33,10 @@ const userSchema = new mongoose.Schema(
         items: [
           {
             rank: Number,
-            track: { type: mongoose.Schema.Types.ObjectId, ref: "Track" },
+            track: {
+              type: String,
+              ref: "Track",
+            },
           },
         ],
       },
@@ -39,7 +48,10 @@ const userSchema = new mongoose.Schema(
         items: [
           {
             rank: Number,
-            track: { type: mongoose.Schema.Types.ObjectId, ref: "Artist" },
+            id: {
+              type: String,
+              ref: "Artist",
+            },
           },
         ],
       },
@@ -48,7 +60,10 @@ const userSchema = new mongoose.Schema(
         items: [
           {
             rank: Number,
-            track: { type: mongoose.Schema.Types.ObjectId, ref: "Artist" },
+            id: {
+              type: String,
+              ref: "Artist",
+            },
           },
         ],
       },
@@ -57,7 +72,10 @@ const userSchema = new mongoose.Schema(
         items: [
           {
             rank: Number,
-            track: { type: mongoose.Schema.Types.ObjectId, ref: "Artist" },
+            id: {
+              type: String,
+              ref: "Artist",
+            },
           },
         ],
       },

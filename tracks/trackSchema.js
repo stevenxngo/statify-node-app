@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const trackSchema = new mongoose.Schema(
   {
     last_updated: Date,
-    _id: { type: String, required: true, unique: true },
+    id: { type: String, required: true, unique: true },
     name: { type: String, required: true, unique: true },
     images: {
       type: [{ url: String }],
@@ -13,8 +13,7 @@ const trackSchema = new mongoose.Schema(
     },
     artists: [
       {
-        name: String,
-        artistId: { type: mongoose.Schema.Types.ObjectId, ref: "Artist" },
+        artist: { type: mongoose.Schema.Types.ObjectId, ref: "Artist" },
       },
     ],
   },
