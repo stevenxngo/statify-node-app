@@ -18,10 +18,9 @@ const createArtist = async (id, name, popularity, images, genres) => {
   }
 };
 
-const updateArtist = async (id, name, popularity, images, genres) => {
+const updateArtist = async (id, name, popularity, images, genres, last_updated) => {
   try {
     console.log(`Found artist ${name}`);
-    const { last_updated } = artistData;
     const now = new Date().getTime();
     const lastUpdated = new Date(last_updated).getTime();
     if (now - lastUpdated > ONEDAY) {
@@ -52,9 +51,10 @@ export const updateArtists = async (artists) => {
       const { id, name, popularity, images, genres } = artist;
       const artistData = await artistModel.findOne({ id: id });
       if (!artistData) {
-        await createArtist(id, name, popularity, images, genres);
+        await createArtist( id, name, popularity, images, genres);
       } else {
-        await updateArtist(id, name, popularity, images, genres);
+        const { last_updated } = artistData;
+        await updateArtist(id, name, popularity, images, genres, last_updated);
       }
     }
   } catch (err) {

@@ -18,7 +18,10 @@ const artistSchema = new mongoose.Schema(
         },
       ],
     },
-    genres: [String],
+    genres: {
+      type: [String],
+      default: [""],
+    },
   },
   { collection: "artists" }
 );

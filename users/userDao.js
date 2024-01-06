@@ -1,6 +1,7 @@
 import userModel from "./userModel.js";
 import { updateArtists, getArtists } from "../artists/artistDao.js";
 import { updateTracks, getTracks } from "../tracks/trackDao.js";
+import { getTopData } from "./routes.js";
 
 const ONEDAY = 24 * 60 * 60 * 1000;
 
@@ -31,9 +32,11 @@ export const getUserData = async (id, type, timespan) => {
       }
       console.log("Data is not expired");
       return type === "artists"
-        ? getArtists(items)
+        ? await getArtists(items)
         : type === "tracks"
-        ? getTracks(items)
+        ? await getTracks(items)
+        : type === "genres"
+        ? items
         : [];
     } else {
       console.log(`No data found for ${type} ${timespan}`);
@@ -45,13 +48,13 @@ export const getUserData = async (id, type, timespan) => {
   }
 };
 
-const updateUser = async (id, timespan, type, ids, updateFunction) => {
+const updateUser = async (id, timespan, type, items) => {
   try {
     const updatedUser = await userModel.findOneAndUpdate(
       { id: id },
       {
         $set: {
-          [`${type}.${timespan}`]: { last_updated: Date.now(), items: ids },
+          [`${type}.${timespan}`]: { last_updated: Date.now(), items: items },
         },
       },
       { new: true }
@@ -70,6 +73,24 @@ export const updateUserArtists = async (id, timespan, ids) => {
   updateUser(id, timespan, "artists", ids);
 };
 
+export const updateUserGenres = async (id, timespan, genres) => {
+  try {
+    console.log(`genres: ${genres}`)
+    const updatedUser = await userModel.findOneAndUpdate(
+      { id: id },
+      {
+        $set: {
+          [`genres.${timespan}`]: { last_updated: Date.now(), items: genres },
+        },
+      },
+      { new: true }
+    );
+    console.log(`User genres updated for ${timespan}`);
+  } catch (error) {
+    console.error(`Error updating user genres: ${error}`);
+  }
+};
+
 export const updateUserData = async (id, type, timespan, ids, data) => {
   try {
     if (type === "tracks") {
@@ -81,5 +102,47 @@ export const updateUserData = async (id, type, timespan, ids, data) => {
     }
   } catch (err) {
     console.log(`Error saving data to database: ${err}`);
+  }
+};
+
+export const calculateGenres = async (req, timespan) => {
+  try {
+    const user = await userModel.findOne({ id: req.session["account_id"] });
+    const data = user?.["artists"]?.[timespan];
+    if (data.items.length > 0) {
+      const { items } = data;
+      const artists = await getArtists(items);
+      console.log("Artists in genres: ", artists);
+      const genreCounts = {};
+      artists.forEach((artist) => {
+        const genres = artist.genres;
+
+        genres.forEach((genre) => {
+          if (!genreCounts[genre]) {
+            genreCounts[genre] = { count: 0, artists: [] };
+          }
+
+          genreCounts[genre].count++;
+          genreCounts[genre].artists.push(artist.name);
+        });
+      });
+
+      const genreArray = Object.entries(genreCounts).map(([genre, data]) => ({
+        genre,
+        count: data.count,
+        artists: data.artists,
+      }));
+
+      genreArray.sort((a, b) => b.count - a.count);
+      genreArray.forEach((genre, index) => {
+        genre.rank = index + 1;
+      });
+      return genreArray;
+    } else {
+      await getTopData(req, "artists", timespan);
+      calculateGenres(req, timespan);
+    }
+  } catch (err) {
+    console.log(`Error calculating genres: ${err}`);
   }
 };

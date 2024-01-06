@@ -69,21 +69,27 @@ const getTopParams = (req, time_range) => {
   return params;
 };
 
-const getTopData = async (req, res, type, time_range) => {
-  await checkExpiration(req);
-  const queryURL = `${SPOTIFY_V1_ENDPOINT}/me/top/${type}`;
-  const params = getTopParams(req, time_range);
-  const response = await spotifyGet(req, queryURL, params);
-  const filteredItems = filterItems(response.data.items, type);
-  const ids = getIds(filteredItems);
-  await dao.updateUserData(
-    req.session["account_id"],
-    type,
-    time_range,
-    ids,
-    filteredItems
-  );
-  res.json(filteredItems);
+export const getTopData = async (req, type, time_range) => {
+  if (type === "tracks" || type === "artists") {
+    await checkExpiration(req);
+    const queryURL = `${SPOTIFY_V1_ENDPOINT}/me/top/${type}`;
+    const params = getTopParams(req, time_range);
+    const response = await spotifyGet(req, queryURL, params);
+    const filteredItems = filterItems(response.data.items, type);
+    const ids = getIds(filteredItems);
+    await dao.updateUserData(
+      req.session["account_id"],
+      type,
+      time_range,
+      ids,
+      filteredItems
+    );
+    return filteredItems;
+  } else if (type === "genres") {
+    const genres = await dao.calculateGenres(req, time_range);
+    await dao.updateUserGenres(req.session["account_id"], time_range, genres);
+    return genres;
+  }
 };
 
 function UserRoutes(app) {
@@ -116,6 +122,7 @@ function UserRoutes(app) {
   app.get("/api/user/top/:type/:time_range", async (req, res) => {
     const { type, time_range } = req.params;
     try {
+      console.log(`Getting top ${type} for ${time_range}`);
       // check database for data
       const dbData = await dao.getUserData(
         req.session["account_id"],
@@ -130,7 +137,8 @@ function UserRoutes(app) {
       } else {
         // get data from spotify api
         console.log(`No data found for ${type} ${time_range} in database`);
-        await getTopData(req, res, type, time_range);
+        const data = await getTopData(req, type, time_range);
+        res.json(data);
       }
     } catch (err) {
       console.log(err);

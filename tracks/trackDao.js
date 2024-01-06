@@ -18,10 +18,9 @@ const createTrack = async (id, name, popularity, images, artists) => {
   }
 };
 
-const updateTrack = async (id, name, popularity, images, artists) => {
+const updateTrack = async (id, name, popularity, images, artists, last_updated) => {
   try {
     console.log(`Found track ${name}`);
-    const { last_updated } = trackData;
     const now = new Date().getTime();
     const lastUpdated = new Date(last_updated).getTime();
     if (now - lastUpdated > ONEDAY) {
@@ -54,7 +53,8 @@ export const updateTracks = async (tracks) => {
       if (!trackData) {
         await createTrack(id, name, popularity, images, artists);
       } else {
-        await updateTrack(id, name, popularity, images, artists);
+        const { last_updated } = trackData;
+        await updateTrack(id, name, popularity, images, artists, last_updated);
       }
     }
   } catch (err) {

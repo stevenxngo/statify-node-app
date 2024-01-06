@@ -81,6 +81,63 @@ const userSchema = new mongoose.Schema(
       },
       default: { short_term: {}, medium_term: {}, long_term: {} },
     },
+    genres: {
+      short_term: {
+        last_updated: Date,
+        items: [
+          {
+            rank: Number,
+            count: Number,
+            genre: {
+              type: String,
+            },
+            artists: [
+              {
+                type: String,
+                ref: "Artist",
+              },
+            ],
+          },
+        ],
+      },
+      medium_term: {
+        last_updated: Date,
+        items: [
+          {
+            rank: Number,
+            count: Number,
+            genre: {
+              type: String,
+            },
+            artists: [
+              {
+                type: String,
+                ref: "Artist",
+              },
+            ],
+          },
+        ],
+      },
+      long_term: {
+        last_updated: Date,
+        items: [
+          {
+            rank: Number,
+            count: Number,
+            genre: {
+              type: String,
+            },
+            artists: [
+              {
+                type: String,
+                ref: "Artist",
+              },
+            ],
+          },
+        ],
+      },
+      default: { short_term: {}, medium_term: {}, long_term: {} },
+    },
   },
   { collection: "users" }
 );
