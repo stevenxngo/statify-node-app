@@ -5,9 +5,13 @@ import { updateTracks, getTracks } from "../tracks/trackDao.js";
 const ONEDAY = 24 * 60 * 60 * 1000;
 
 export const createUser = async (id) => {
-  if (!(await userModel.findOne({ id: id }))) {
-    console.log("Creating user: ", id);
-    userModel.create({ id: id });
+  try {
+    if (!(await userModel.findOne({ id: id }))) {
+      console.log("Creating user: ", id);
+      userModel.create({ id: id });
+    }
+  } catch (err) {
+    console.log(`Error creating user ${id}: ${err}`);
   }
 };
 
@@ -36,7 +40,7 @@ export const getUserData = async (id, type, timespan) => {
       return [];
     }
   } catch (err) {
-    console.log(err);
+    console.log(`Error getting user ${type} ${timespan}: ${err}`);
     return [];
   }
 };

@@ -3,38 +3,46 @@ import artistModel from "./artistModel.js";
 const ONEDAY = 24 * 60 * 60 * 1000;
 
 const createArtist = async (id, name, popularity, images, genres) => {
-  console.log("Creating artist: ", name);
-  await artistModel.create({
-    last_updated: Date.now(),
-    id: id,
-    name: name,
-    popularity: popularity,
-    images: images,
-    genres: genres,
-  });
+  try {
+    console.log("Creating artist: ", name);
+    await artistModel.create({
+      last_updated: Date.now(),
+      id: id,
+      name: name,
+      popularity: popularity,
+      images: images,
+      genres: genres,
+    });
+  } catch (err) {
+    console.log(`Error creating artist ${name}: ${err}`);
+  }
 };
 
 const updateArtist = async (id, name, popularity, images, genres) => {
-  console.log(`Found artist ${name}`);
-  const { last_updated } = artistData;
-  const now = new Date().getTime();
-  const lastUpdated = new Date(last_updated).getTime();
-  if (now - lastUpdated > ONEDAY) {
-    console.log(`Artist ${name} data is expired`);
-    await artistModel.findOneAndUpdate(
-      { id: id },
-      {
-        last_updated: Date.now(),
-        id: id,
-        name: name,
-        popularity: popularity,
-        images: images,
-        genres: genres,
-      }
-    );
-    console.log(`Artist ${name} data updated`);
-  } else {
-    console.log(`Artist ${name} data is not expired`);
+  try {
+    console.log(`Found artist ${name}`);
+    const { last_updated } = artistData;
+    const now = new Date().getTime();
+    const lastUpdated = new Date(last_updated).getTime();
+    if (now - lastUpdated > ONEDAY) {
+      console.log(`Artist ${name} data is expired`);
+      await artistModel.findOneAndUpdate(
+        { id: id },
+        {
+          last_updated: Date.now(),
+          id: id,
+          name: name,
+          popularity: popularity,
+          images: images,
+          genres: genres,
+        }
+      );
+      console.log(`Artist ${name} data updated`);
+    } else {
+      console.log(`Artist ${name} data is not expired`);
+    }
+  } catch (err) {
+    console.log(`Error updating artist ${name}: ${err}`);
   }
 };
 
@@ -50,7 +58,7 @@ export const updateArtists = async (artists) => {
       }
     }
   } catch (err) {
-    console.log(err);
+    console.log(`Error updating artists: ${err}`);
   }
 };
 
@@ -72,7 +80,7 @@ export const getArtists = async (items) => {
     finalArtists.sort((a, b) => a.rank - b.rank);
     return finalArtists;
   } catch (err) {
-    console.log(err);
+    console.log(`Error getting artists: ${err}`);
     return [];
   }
 };
@@ -82,7 +90,7 @@ export const getArtist = async (id) => {
     const artist = await artistModel.find({ id: id });
     return artist;
   } catch (err) {
-    console.log(err);
+    console.log(`Error getting artist: ${err}`);
     return null;
   }
 };
