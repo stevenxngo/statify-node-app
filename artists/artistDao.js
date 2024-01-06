@@ -2,52 +2,52 @@ import artistModel from "./artistModel.js";
 
 const ONEDAY = 24 * 60 * 60 * 1000;
 
-export const updateArtist = async (artist) => {
-  try {
-    const { id, name, popularity, images, genres } = artist;
-    const artistData = await artistModel.findOne({ id: id });
-    if (!artistData) {
-      console.log("Creating artist: ", name);
-      await artistModel.create({
+const createArtist = async (id, name, popularity, images, genres) => {
+  console.log("Creating artist: ", name);
+  await artistModel.create({
+    last_updated: Date.now(),
+    id: id,
+    name: name,
+    popularity: popularity,
+    images: images,
+    genres: genres,
+  });
+};
+
+const updateArtist = async (id, name, popularity, images, genres) => {
+  console.log(`Found artist ${name}`);
+  const { last_updated } = artistData;
+  const now = new Date().getTime();
+  const lastUpdated = new Date(last_updated).getTime();
+  if (now - lastUpdated > ONEDAY) {
+    console.log(`Artist ${name} data is expired`);
+    await artistModel.findOneAndUpdate(
+      { id: id },
+      {
         last_updated: Date.now(),
         id: id,
         name: name,
         popularity: popularity,
         images: images,
         genres: genres,
-      });
-    } else {
-      console.log(`Found artist ${name}`);
-      const { last_updated } = artistData;
-      const now = new Date().getTime();
-      const lastUpdated = new Date(last_updated).getTime();
-      if (now - lastUpdated > ONEDAY) {
-        console.log(`Artist ${name} data is expired`);
-        await artistModel.findOneAndUpdate(
-          { id: id },
-          {
-            last_updated: Date.now(),
-            id: id,
-            name: name,
-            popularity: popularity,
-            images: images,
-            genres: genres,
-          }
-        );
-        console.log(`Artist ${name} data updated`);
-      } else {
-        console.log(`Artist ${name} data is not expired`);
       }
-    }
-  } catch (err) {
-    console.log(err);
+    );
+    console.log(`Artist ${name} data updated`);
+  } else {
+    console.log(`Artist ${name} data is not expired`);
   }
 };
 
 export const updateArtists = async (artists) => {
   try {
     for (const artist of artists) {
-      await updateArtist(artist);
+      const { id, name, popularity, images, genres } = artist;
+      const artistData = await artistModel.findOne({ id: id });
+      if (!artistData) {
+        await createArtist(id, name, popularity, images, genres);
+      } else {
+        await updateArtist(id, name, popularity, images, genres);
+      }
     }
   } catch (err) {
     console.log(err);

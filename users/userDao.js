@@ -5,8 +5,7 @@ import { updateTracks, getTracks } from "../tracks/trackDao.js";
 const ONEDAY = 24 * 60 * 60 * 1000;
 
 export const createUser = async (id) => {
-  const user = await userModel.findOne({ id: id });
-  if (!user) {
+  if (!(await userModel.findOne({ id: id }))) {
     console.log("Creating user: ", id);
     userModel.create({ id: id });
   }
@@ -15,25 +14,23 @@ export const createUser = async (id) => {
 export const getUserData = async (id, type, timespan) => {
   try {
     const user = await userModel.findOne({ id: id });
-    const data = user[type][timespan];
-    if (data && data.last_updated && data.items.length > 0) {
+    const data = user?.[type]?.[timespan];
+
+    if (data?.last_updated && data.items.length > 0) {
       const { last_updated, items } = data;
       const now = new Date().getTime();
       const lastUpdated = new Date(last_updated).getTime();
+
       if (now - lastUpdated > ONEDAY) {
         console.log("Data is expired");
         return [];
-      } else {
-        console.log("Data is not expired");
-        if (type === "artists") {
-          return getArtists(items);
-        } else if (type === "tracks") {
-          return getTracks(items);
-          return [];
-        } else {
-          throw error("Invalid type: ", type);
-        }
       }
+      console.log("Data is not expired");
+      return type === "artists"
+        ? getArtists(items)
+        : type === "tracks"
+        ? getTracks(items)
+        : [];
     } else {
       console.log(`No data found for ${type} ${timespan}`);
       return [];
@@ -44,38 +41,29 @@ export const getUserData = async (id, type, timespan) => {
   }
 };
 
-const updateUserTracks = async (id, timespan, ids) => {
+const updateUser = async (id, timespan, type, ids, updateFunction) => {
   try {
     const updatedUser = await userModel.findOneAndUpdate(
       { id: id },
       {
         $set: {
-          [`tracks.${timespan}`]: { last_updated: Date.now(), items: ids },
+          [`${type}.${timespan}`]: { last_updated: Date.now(), items: ids },
         },
       },
       { new: true }
     );
-    console.log(`User tracks updated for ${timespan}`);
+    console.log(`User ${type} updated for ${timespan}`);
   } catch (error) {
-    console.error(`Error updating user tracks: ${error}`);
+    console.error(`Error updating user ${type}: ${error}`);
   }
 };
 
-const updateUserArtists = async (id, timespan, ids) => {
-  try {
-    const updatedUser = await userModel.findOneAndUpdate(
-      { id: id },
-      {
-        $set: {
-          [`artists.${timespan}`]: { last_updated: Date.now(), items: ids },
-        },
-      },
-      { new: true }
-    );
-    console.log(`User artists updated for ${timespan}`);
-  } catch (error) {
-    console.error(`Error updating user artists: ${error}`);
-  }
+export const updateUserTracks = async (id, timespan, ids) => {
+  updateUser(id, timespan, "tracks", ids);
+};
+
+export const updateUserArtists = async (id, timespan, ids) => {
+  updateUser(id, timespan, "artists", ids);
 };
 
 export const updateUserData = async (id, type, timespan, ids, data) => {
