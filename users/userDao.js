@@ -75,7 +75,6 @@ export const updateUserArtists = async (id, timespan, ids) => {
 
 export const updateUserGenres = async (id, timespan, genres) => {
   try {
-    console.log(`genres: ${genres}`)
     const updatedUser = await userModel.findOneAndUpdate(
       { id: id },
       {
@@ -137,6 +136,7 @@ export const calculateGenres = async (req, timespan) => {
       genreArray.forEach((genre, index) => {
         genre.rank = index + 1;
       });
+      console.log("Genres: ", genreArray);
       return genreArray;
     } else {
       await getTopData(req, "artists", timespan);
