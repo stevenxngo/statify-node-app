@@ -7,9 +7,15 @@ const artistSchema = new mongoose.Schema(
     name: { type: String, required: true, unique: true },
     popularity: Number,
     images: {
-      type: [{ url: String }],
+      type: [
+        {
+          url: String,
+        },
+      ],
       default: [
-        "https://raw.githubusercontent.com/stevenxngo/statify-node-app/main/images/default_artist.jpeg",
+        {
+          url: "https://raw.githubusercontent.com/stevenxngo/statify-node-app/main/images/default_artist.jpeg",
+        },
       ],
     },
     genres: [String],

@@ -24,6 +24,13 @@ const filterArtists = (artists) => {
   }));
 };
 
+const filterTrackArtists = (artists) => {
+  return artists.map((artist) => ({
+    id: artist.id,
+    name: artist.name,
+  }));
+};
+
 const filterTracks = (tracks) => {
   return tracks.map((track, index) => ({
     rank: index,
@@ -31,7 +38,7 @@ const filterTracks = (tracks) => {
     name: track.name,
     popularity: track.popularity,
     images: track.album.images,
-    artists: filterArtists(track.artists),
+    artists: filterTrackArtists(track.artists),
   }));
 };
 
@@ -69,7 +76,6 @@ const getTopData = async (req, res, type, time_range) => {
   const response = await spotifyGet(req, queryURL, params);
   const filteredItems = filterItems(response.data.items, type);
   const ids = getIds(filteredItems);
-  console.log("ids: ", ids);
   await dao.updateUserData(
     req.session["account_id"],
     type,
@@ -119,11 +125,11 @@ function UserRoutes(app) {
 
       if (dbData && dbData.length > 0) {
         // found data in database
-        console.log(`Found data in database for ${type} ${time_range}`);
+        console.log(`Found data for ${type} ${time_range} in database`);
         res.json(dbData);
       } else {
         // get data from spotify api
-        console.log(`Data not found in database for ${type} ${time_range}`);
+        console.log(`No data found for ${type} ${time_range} in database`);
         await getTopData(req, res, type, time_range);
       }
     } catch (err) {

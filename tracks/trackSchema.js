@@ -4,16 +4,24 @@ const trackSchema = new mongoose.Schema(
   {
     last_updated: Date,
     id: { type: String, required: true, unique: true },
-    name: { type: String, required: true, unique: true },
+    name: { type: String, required: true },
+    popularity: Number,
     images: {
-      type: [{ url: String }],
+      type: [
+        {
+          url: String,
+        },
+      ],
       default: [
-        "https://raw.githubusercontent.com/stevenxngo/statify-node-app/main/images/default_track.png",
+        {
+          url: "https://raw.githubusercontent.com/stevenxngo/statify-node-app/main/images/default_track.png",
+        },
       ],
     },
     artists: [
       {
-        artist: { type: mongoose.Schema.Types.ObjectId, ref: "Artist" },
+        id: { type: String, ref: "Artist" },
+        name: String,
       },
     ],
   },

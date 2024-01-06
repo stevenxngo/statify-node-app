@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema(
         items: [
           {
             rank: Number,
-            track: {
+            id: {
               type: String,
               ref: "Track",
             },
@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
         items: [
           {
             rank: Number,
-            track: {
+            id: {
               type: String,
               ref: "Track",
             },
@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema(
         items: [
           {
             rank: Number,
-            track: {
+            id: {
               type: String,
               ref: "Track",
             },

@@ -1,5 +1,6 @@
 import userModel from "./userModel.js";
 import { updateArtists, getArtists } from "../artists/artistDao.js";
+import { updateTracks, getTracks } from "../tracks/trackDao.js";
 
 const ONEDAY = 24 * 60 * 60 * 1000;
 
@@ -25,16 +26,16 @@ export const getUserData = async (id, type, timespan) => {
       } else {
         console.log("Data is not expired");
         if (type === "artists") {
-          console.log(`Getting artists: ${items}`);
           return getArtists(items);
         } else if (type === "tracks") {
           return getTracks(items);
+          return [];
         } else {
           throw error("Invalid type: ", type);
         }
       }
     } else {
-      console.log("Data not found in database");
+      console.log(`No data found for ${type} ${timespan}`);
       return [];
     }
   } catch (err) {
@@ -43,9 +44,25 @@ export const getUserData = async (id, type, timespan) => {
   }
 };
 
+const updateUserTracks = async (id, timespan, ids) => {
+  try {
+    const updatedUser = await userModel.findOneAndUpdate(
+      { id: id },
+      {
+        $set: {
+          [`tracks.${timespan}`]: { last_updated: Date.now(), items: ids },
+        },
+      },
+      { new: true }
+    );
+    console.log(`User tracks updated for ${timespan}`);
+  } catch (error) {
+    console.error(`Error updating user tracks: ${error}`);
+  }
+};
+
 const updateUserArtists = async (id, timespan, ids) => {
   try {
-    // console.log(`update user artists ids:`, ids);
     const updatedUser = await userModel.findOneAndUpdate(
       { id: id },
       {
@@ -55,9 +72,6 @@ const updateUserArtists = async (id, timespan, ids) => {
       },
       { new: true }
     );
-
-    // console.log(`User updated: ${updatedUser}`);
-    // console.log(`User artists updated: ${updatedUser.artists[timespan]}`);
     console.log(`User artists updated for ${timespan}`);
   } catch (error) {
     console.error(`Error updating user artists: ${error}`);
@@ -73,7 +87,6 @@ export const updateUserData = async (id, type, timespan, ids, data) => {
       updateArtists(data);
       updateUserArtists(id, timespan, ids);
     }
-    // await user.save();
   } catch (err) {
     console.log(`Error saving data to database: ${err}`);
   }
