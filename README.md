@@ -24,7 +24,7 @@ A simple Node.js app that uses the Spotify API to display a user's top artists a
 3. Create a `.env` file in the root directory and add the following:
    ```sh
    CLIENT_ID=your_client_id
-   FRONTEND_URI=your_frontend_uri
+   FRONTEND_URI=http://localhost:3000 # or your frontend URI
    ```
 4. Start the app
    ```sh
