@@ -11,7 +11,7 @@ A simple Node.js app that uses the Spotify API to display a user's top artists a
 - [Premium Spotify account](https://www.spotify.com/us/)
 - [Spotify Developer account](https://developer.spotify.com/dashboard/)
 
-### Installation
+### Local Installation
 
 1. Clone the repo
    ```sh
@@ -23,8 +23,10 @@ A simple Node.js app that uses the Spotify API to display a user's top artists a
    ```
 3. Create a `.env` file in the root directory and add the following:
    ```sh
+   NODE_ENV="development"
    CLIENT_ID=your_client_id
    FRONTEND_URI=http://localhost:3000 # or your frontend URI
+   DB_CONNECTION_STRING=your_mongodb_connection_string
    ```
 4. Start the app
    ```sh

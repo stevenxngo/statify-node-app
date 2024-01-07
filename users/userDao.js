@@ -111,7 +111,6 @@ export const calculateGenres = async (req, timespan) => {
     if (data.items.length > 0) {
       const { items } = data;
       const artists = await getArtists(items);
-      console.log("Artists in genres: ", artists);
       const genreCounts = {};
       artists.forEach((artist) => {
         const genres = artist.genres;
@@ -136,7 +135,6 @@ export const calculateGenres = async (req, timespan) => {
       genreArray.forEach((genre, index) => {
         genre.rank = index + 1;
       });
-      console.log("Genres: ", genreArray);
       return genreArray;
     } else {
       await getTopData(req, "artists", timespan);
