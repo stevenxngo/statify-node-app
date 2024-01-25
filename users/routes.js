@@ -70,25 +70,29 @@ const getTopParams = (req, time_range) => {
 };
 
 export const getTopData = async (req, type, time_range) => {
-  if (type === "tracks" || type === "artists") {
-    await checkExpiration(req);
-    const queryURL = `${SPOTIFY_V1_ENDPOINT}/me/top/${type}`;
-    const params = getTopParams(req, time_range);
-    const response = await spotifyGet(req, queryURL, params);
-    const filteredItems = filterItems(response.data.items, type);
-    const ids = getIds(filteredItems);
-    await dao.updateUserData(
-      req.session["account_id"],
-      type,
-      time_range,
-      ids,
-      filteredItems
-    );
-    return filteredItems;
-  } else if (type === "genres") {
-    const genres = await dao.calculateGenres(req, time_range);
-    await dao.updateUserGenres(req.session["account_id"], time_range, genres);
-    return genres;
+  try {
+    if (type === "tracks" || type === "artists") {
+      await checkExpiration(req);
+      const queryURL = `${SPOTIFY_V1_ENDPOINT}/me/top/${type}`;
+      const params = getTopParams(req, time_range);
+      const response = await spotifyGet(req, queryURL, params);
+      const filteredItems = filterItems(response.data.items, type);
+      const ids = getIds(filteredItems);
+      await dao.updateUserData(
+        req.session["account_id"],
+        type,
+        time_range,
+        ids,
+        filteredItems
+      );
+      return filteredItems;
+    } else if (type === "genres") {
+      const genres = await dao.calculateGenres(req, time_range);
+      await dao.updateUserGenres(req.session["account_id"], time_range, genres);
+      return genres;
+    }
+  } catch (err) {
+    console.log(err);
   }
 };
 
